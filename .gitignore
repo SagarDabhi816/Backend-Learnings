@@ -1,0 +1,8 @@
+# macOS junk
+.DS_Store
+
+# accidental mounted folders / aliases
+Moody-Player/
+
+
+node_modules/
