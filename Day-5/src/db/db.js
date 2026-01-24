@@ -2,50 +2,9 @@ const mongoose = require("mongoose");
 
 function connectToDatabase(){
   mongoose
-    .connect(
-      "mongodb+srv://sagardabhi816_db_user:Kw8of7XljIra3J6t@cluster0.kjrqfcr.mongodb.net/learnings"
-    )
+    .connect(process.env.DATABASE_URL)
     .then(() => {
-      console.log("shit is connectd");
+      console.log("DB is connectd");
     });
 };
 module.exports = connectToDatabase
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
