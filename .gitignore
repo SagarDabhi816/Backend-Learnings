@@ -4,5 +4,16 @@
 # accidental mounted folders / aliases
 Moody-Player/
 
-
+# Node Modules
 node_modules/
+
+# ALready Pushed Folders
+
+Day-1/
+Day-2/
+Day-3/
+Day-4/
+
+day-6/
+day-7/
+day-8/
