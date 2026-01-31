@@ -1,5 +1,6 @@
 const express = require("express");
 const userModel = require("../models/user.model");
+const noteModel = require("../models/user.model");
 
 const router = express.Router();
 
@@ -27,10 +28,27 @@ router.post("/register", async (req, res) => {
 });
 
 // Login
-router.post("/login", (req, res) => {
-  res.status().json({
-    message: "",
+router.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  const user = await noteModel.findOne({
+    username: username,
   });
+
+  if (!user) {
+   return res.status(401).json({
+      message: "Account with this username dose not exists",
+    });
+  }
+
+  const isValidPassword = password == user.password
+
+  if(!isValidPassword){
+return res.status(401).json({
+      message: "Invalid password",
+    });
+  }
+ 
 });
 
 // Find All Users
@@ -42,13 +60,8 @@ router.get("/users", async (req, res) => {
     user: user,
   });
 
-
-  try{
-
-  }
-  catch(error){
-
-  }
+  try {
+  } catch (error) {}
 });
 
 // Find Single User
