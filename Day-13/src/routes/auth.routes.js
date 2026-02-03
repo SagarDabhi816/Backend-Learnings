@@ -1,6 +1,7 @@
 const express = require("express");
 const userModel = require("../models/user.model");
 const noteModel = require("../models/user.model");
+const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 
@@ -18,10 +19,20 @@ router.post("/register", async (req, res) => {
       username: username,
       password: password,
     });
+
+    const token = jwt.sign(
+      {
+        id: user._id,
+      },
+      process.env.JWT_SECRET,
+    );
+
+    res.cookie("token", token);
+
     res.status(201).json({
       message: "User registed succesfully",
+      user: user,
     });
-    console.log(username, password);
   } catch (error) {
     console.error("User creatio failed", error.message);
   }
@@ -36,19 +47,51 @@ router.post("/login", async (req, res) => {
   });
 
   if (!user) {
-   return res.status(401).json({
+    return res.status(401).json({
       message: "Account with this username dose not exists",
     });
   }
 
-  const isValidPassword = password == user.password
+  const isValidPassword = password == user.password;
 
-  if(!isValidPassword){
-return res.status(401).json({
+  if (!isValidPassword) {
+    return res.status(401).json({
       message: "Invalid password",
     });
   }
- 
+
+  res.status(200).json({
+    message: "User logged in succesfull",
+  });
+});
+
+// Check If Valid User
+router.get("/user", async (req, res) => {
+  const { token } = req.cookie;
+
+  if (!token) {
+    return res.status(401).json({
+      message: "Unauthorised",
+    });
+  }
+
+  try {
+    const decodedData = jwt.verify(token, process.env.JWT_SECRET);
+    // res.send(decoded);
+
+    const user = await userModel.findOne({
+      _id: decodedData.id,
+    });
+
+    res.status(200).json({
+      message: "Fetched User Succesfully",
+      user: user,
+    });
+  } catch (error) {
+    res.status(401).json({
+      message: "Invalid Token",
+    });
+  }
 });
 
 // Find All Users
@@ -56,12 +99,9 @@ router.get("/users", async (req, res) => {
   const user = await userModel.find();
 
   res.status(20).json({
-    message: "",
+    message: "All User Fetched",
     user: user,
   });
-
-  try {
-  } catch (error) {}
 });
 
 // Find Single User
