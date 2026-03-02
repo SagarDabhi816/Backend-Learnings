@@ -7,9 +7,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 
-// app.use((req,res,next)=>{
-
-// })
+// app.use((req,res,next)=>{  })
 app.use("/auth", authRoute);
 
 module.exports = app;

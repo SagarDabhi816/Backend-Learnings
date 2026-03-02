@@ -1,6 +1,5 @@
 const express = require("express");
 const userModel = require("../models/user.model");
-const noteModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 
 const router = express.Router();
@@ -10,41 +9,47 @@ router.get("/", (req, res) => {
   console.log("Authentication Route Is Working");
 });
 
-// Register
+// Register user
 router.post("/register", async (req, res) => {
   const { username, password } = req.body;
 
   try {
+    // Step 1: Check if user already exists (like login's if(!user))
+    const existingUser = await userModel.findOne({ username: username });
+
+    if (existingUser) {
+      return res.status(400).json({
+        message: "User already exists",
+      });
+    }
+
+    // Step 2: Create user (only if username is unique)
     const user = await userModel.create({
       username: username,
       password: password,
     });
 
-    const token = jwt.sign(
-      {
-        id: user._id,
-      },
-      process.env.JWT_SECRET,
-    );
-
+    // Step 3: Generate JWT token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
     res.cookie("token", token);
 
     res.status(201).json({
-      message: "User registed succesfully",
+      message: "User registered successfully",
       user: user,
     });
   } catch (error) {
-    console.error("User creatio failed", error.message);
+    res.status(500).json({
+      message: "Registration failed",
+      error: error.message,
+    });
   }
 });
 
-// Login
+// Login 
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
-  const user = await noteModel.findOne({
-    username: username,
-  });
+  const user = await noteModel.findOne({username});
 
   if (!user) {
     return res.status(401).json({
@@ -59,6 +64,10 @@ router.post("/login", async (req, res) => {
       message: "Invalid password",
     });
   }
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    res.cookie("token", token);
+
 
   res.status(200).json({
     message: "User logged in succesfull",
@@ -128,8 +137,9 @@ router.get("/users/:id", async (req, res) => {
 
 // Logout
 router.get("/logout", (req, res) => {
-  res.status().json({
-    message: "",
+  res.clearCookie("token")
+  res.status(200).json({
+    message: "User logged out successfully",
   });
 });
 
